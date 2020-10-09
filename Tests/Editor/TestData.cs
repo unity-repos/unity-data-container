@@ -9,7 +9,7 @@ namespace DataContainer.Tests.Editor
         [Test]
         public void BasicOperationsClass()
         {
-            var container = new DataContainer<int, TestItem>(new IdentityInt(1));
+            var container = new DataContainer<TestItem>();
 
             var item1 = new TestItem {Value = 5};
             var item2 = new TestItem {Value = 6};

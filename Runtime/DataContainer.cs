@@ -2,23 +2,22 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Principal;
 
 namespace DataContainer.Runtime
 {
-    public class DataContainer<TK, TV> : IEnumerable<KeyValuePair<TK, TV>>
-        where TK : IEquatable<TK>
-
+    public class DataContainer<T> : IEnumerable<KeyValuePair<ulong, T>>
     {
-        private readonly Dictionary<TK, TV> _items;
-        private readonly IIdentity<TK> _identity;
+        private readonly Dictionary<ulong, T> _items;
+        private ulong identity;
 
-        public DataContainer(IIdentity<TK> identity)
+        public DataContainer()
         {
-            _identity = identity;
-            _items = new Dictionary<TK, TV>();
+            identity = 1;
+            _items = new Dictionary<ulong, T>();
         }
 
-        public bool Add(TK id, TV item)
+        public bool Add(ulong id, T item)
         {
             if (_items.ContainsKey(id))
             {
@@ -29,18 +28,18 @@ namespace DataContainer.Runtime
             return true;
         }
 
-        public TK Add(TV item)
+        public ulong Add(T item)
         {
             while (true)
             {
-                if (_items.ContainsKey(_identity.Value))
+                if (_items.ContainsKey(identity))
                 {
-                    if (_identity.IsMax())
+                    if (identity >= ulong.MaxValue - 1)
                     {
                         throw new OverflowException();
                     }
 
-                    _identity.Increase();
+                    identity++;
                 }
                 else
                 {
@@ -48,12 +47,15 @@ namespace DataContainer.Runtime
                 }
             }
 
-            _items[_identity.Value] = item;
 
-            return _identity.Increase();
+            _items[identity] = item;
+            var temp = identity;
+            identity++;
+
+            return temp;
         }
 
-        public void Update(TK id, TV item)
+        public void Update(ulong id, T item)
         {
             _items[id] = item;
         }
@@ -64,7 +66,7 @@ namespace DataContainer.Runtime
         }
 
 
-        public bool TryGet(TK id, out TV item)
+        public bool TryGet(ulong id, out T item)
         {
             item = default;
             if (!_items.ContainsKey(id))
@@ -76,7 +78,7 @@ namespace DataContainer.Runtime
             return true;
         }
 
-        public bool Remove(TK id)
+        public bool Remove(ulong id)
         {
             if (_items.ContainsKey(id))
             {
@@ -87,12 +89,12 @@ namespace DataContainer.Runtime
             return false;
         }
 
-        public bool Contains(TK id)
+        public bool Contains(ulong id)
         {
             return _items.ContainsKey(id);
         }
 
-        public IEnumerator<KeyValuePair<TK, TV>> GetEnumerator()
+        public IEnumerator<KeyValuePair<ulong, T>> GetEnumerator()
         {
             return _items.GetEnumerator();
         }
