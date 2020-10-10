@@ -1,6 +1,6 @@
-﻿using DataContainer.Runtime;
+﻿using DataContainers.Runtime;
 
-namespace DataContainer.Tests.Editor
+namespace DataContainers.Tests.Editor
 {
     public class TestItem : IId
     {

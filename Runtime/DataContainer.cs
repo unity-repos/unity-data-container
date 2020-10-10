@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Security.Principal;
 using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace DataContainer.Runtime
+namespace DataContainers.Runtime
 {
     public class DataContainer<T> : IEnumerable<KeyValuePair<ulong, T>>
         where T : IId

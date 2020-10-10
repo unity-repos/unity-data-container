@@ -1,4 +1,4 @@
-﻿namespace DataContainer.Runtime
+﻿namespace DataContainers.Runtime
 {
     public interface IId
     {

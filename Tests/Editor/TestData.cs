@@ -1,8 +1,7 @@
-﻿using DataContainer.Runtime;
+﻿using DataContainers.Runtime;
 using NUnit.Framework;
-using UnityEngine;
 
-namespace DataContainer.Tests.Editor
+namespace DataContainers.Tests.Editor
 {
     public class TestData
     {
