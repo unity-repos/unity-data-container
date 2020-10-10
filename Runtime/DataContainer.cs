@@ -9,7 +9,7 @@ namespace DataContainers.Runtime
     public class DataContainer<T> : IEnumerable<KeyValuePair<ulong, T>>
         where T : IId
     {
-        public delegate void DataHandler(T data);
+        public delegate void DataHandler(DataInfo<T> info);
 
         public DataHandler DelDataAdded { get; set; }
         public DataHandler DelDataRemoved { get; set; }
