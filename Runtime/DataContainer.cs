@@ -3,56 +3,92 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Principal;
+using UnityEditor;
+using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace DataContainer.Runtime
 {
     public class DataContainer<T> : IEnumerable<KeyValuePair<ulong, T>>
+        where T : IId
     {
         private readonly Dictionary<ulong, T> _items;
-        private ulong identity;
+        private ulong _identity;
+        private readonly bool _conserveIds;
 
-        public DataContainer()
+        private const ulong Start = 1;
+        private static ulong Unassigned => Start - 1;
+
+        public DataContainer(bool conserveIds = false)
         {
-            identity = 1;
+            _conserveIds = conserveIds;
+            _identity = Start;
             _items = new Dictionary<ulong, T>();
         }
 
-        public bool Add(ulong id, T item)
-        {
-            if (_items.ContainsKey(id))
-            {
-                return false;
-            }
-
-            _items[id] = item;
-            return true;
-        }
 
         public ulong Add(T item)
         {
-            while (true)
+            ulong id = Unassigned;
+
+            if (_conserveIds)
             {
-                if (_items.ContainsKey(identity))
+                if (item is IId i)
                 {
-                    if (identity >= ulong.MaxValue - 1)
+                    if (id == Unassigned || i.Id >= Start && _items.ContainsKey(i.Id))
                     {
-                        throw new OverflowException();
+                        id = GetUniqueId();
+                        i.Id = id;
+                        if (item is Object obj)
+                        {
+#if UNITY_EDITOR
+                            EditorUtility.SetDirty(obj);
+#endif
+                        }
+                    }
+                }
+            }
+            else
+            {
+                for (ulong i = _identity; i < ulong.MaxValue; i++)
+                {
+                    _identity = i;
+                    if (_items.ContainsKey(_identity))
+                    {
+                        continue;
                     }
 
-                    identity++;
-                }
-                else
-                {
+                    id = i;
                     break;
                 }
             }
 
+            /*if (id == Unassigned)
+            {
+                id = GetUniqueId();
+            }*/
 
-            _items[identity] = item;
-            var temp = identity;
-            identity++;
+            Add(id, item);
 
-            return temp;
+            return id;
+        }
+
+        public bool Add(ulong id, T t)
+        {
+            if (t == null)
+            {
+                return false;
+            }
+
+            if (_items.ContainsKey(id))
+            {
+                Debug.LogError("Tried to add duplicate id!");
+                return false;
+            }
+
+            _items[id] = t;
+            t.Id = id;
+            return true;
         }
 
         public void Update(ulong id, T item)
@@ -102,6 +138,19 @@ namespace DataContainer.Runtime
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
+        }
+
+        private ulong GetUniqueId()
+        {
+            for (ulong i = Start; i < ulong.MaxValue; i++)
+            {
+                if (!_items.ContainsKey(i))
+                {
+                    return i;
+                }
+            }
+
+            return Unassigned;
         }
     }
 }
