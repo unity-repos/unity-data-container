@@ -9,6 +9,13 @@ namespace DataContainers.Runtime
     public class DataContainer<T> : IEnumerable<KeyValuePair<ulong, T>>
         where T : IId
     {
+        public delegate void DataHandler(T data);
+
+        public DataHandler DelDataAdded { get; set; }
+        public DataHandler DelDataRemoved { get; set; }
+        public DataHandler DelDataUpdated { get; set; }
+
+
         private readonly Dictionary<ulong, T> _items;
         private ulong _identity;
         private readonly bool _conserveIds;
@@ -60,11 +67,6 @@ namespace DataContainers.Runtime
                 }
             }
 
-            /*if (id == Unassigned)
-            {
-                id = GetUniqueId();
-            }*/
-
             Add(id, item);
 
             return id;
@@ -85,12 +87,15 @@ namespace DataContainers.Runtime
 
             _items[id] = t;
             t.Id = id;
+
+            DelDataAdded?.Invoke(t);
             return true;
         }
 
         public void Update(ulong id, T item)
         {
             _items[id] = item;
+            DelDataUpdated?.Invoke(item);
         }
 
         public int Count()
@@ -115,7 +120,10 @@ namespace DataContainers.Runtime
         {
             if (_items.ContainsKey(id))
             {
+                var item = _items[id];
                 _items.Remove(id);
+
+                DelDataRemoved?.Invoke(item);
                 return true;
             }
 
