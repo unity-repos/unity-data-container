@@ -88,14 +88,23 @@ namespace DataContainers.Runtime
             _items[id] = t;
             t.Id = id;
 
-            DelDataAdded?.Invoke(t);
+            DelDataAdded?.Invoke(GetInfo(t));
             return true;
         }
 
-        public void Update(ulong id, T item)
+        private DataInfo<T> GetInfo(T t)
         {
-            _items[id] = item;
-            DelDataUpdated?.Invoke(item);
+            return new DataInfo<T>()
+            {
+                Container = this,
+                Data = t,
+            };
+        }
+
+        public void Update(ulong id, T t)
+        {
+            _items[id] = t;
+            DelDataUpdated?.Invoke(GetInfo(t));
         }
 
         public int Count()
@@ -104,15 +113,15 @@ namespace DataContainers.Runtime
         }
 
 
-        public bool TryGet(ulong id, out T item)
+        public bool TryGet(ulong id, out T t)
         {
-            item = default;
+            t = default;
             if (!_items.ContainsKey(id))
             {
                 return false;
             }
 
-            item = _items[id];
+            t = _items[id];
             return true;
         }
 
@@ -120,10 +129,10 @@ namespace DataContainers.Runtime
         {
             if (_items.ContainsKey(id))
             {
-                var item = _items[id];
+                var t = _items[id];
                 _items.Remove(id);
 
-                DelDataRemoved?.Invoke(item);
+                DelDataRemoved?.Invoke(GetInfo(t));
                 return true;
             }
 
