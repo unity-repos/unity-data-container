@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -39,7 +40,9 @@ namespace DataContainers.Runtime
             {
                 if (item is IId i)
                 {
-                    if (id == Unassigned || i.Id >= Start && _items.ContainsKey(i.Id))
+                    id = i.Id;
+
+                    if (id == Unassigned || (i.Id >= Start && _items.ContainsKey(i.Id)))
                     {
                         id = GetUniqueId();
                         i.Id = id;
@@ -90,6 +93,24 @@ namespace DataContainers.Runtime
 
             DelDataAdded?.Invoke(GetInfo(t));
             return true;
+        }
+
+        // Add collection with assigned ids first
+        public void Add(IEnumerable<T> items)
+        {
+            var sorted = items.OrderByDescending(t => t.Id);
+            foreach (var item in sorted)
+            {
+                Add(item);
+                /*if (item.Id != Unassigned)
+                {
+                    Add()       
+                }
+                else
+                {
+                    
+                }*/
+            }
         }
 
         private DataInfo<T> GetInfo(T t)
