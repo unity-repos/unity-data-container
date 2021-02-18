@@ -32,6 +32,12 @@ namespace DataContainers.Runtime
         }
 
 
+        public void Clear()
+        {
+            _identity = Start;
+            _items.Clear();
+        }
+
         public ulong Add(T item)
         {
             ulong id = Unassigned;
@@ -102,14 +108,6 @@ namespace DataContainers.Runtime
             foreach (var item in sorted)
             {
                 Add(item);
-                /*if (item.Id != Unassigned)
-                {
-                    Add()       
-                }
-                else
-                {
-                    
-                }*/
             }
         }
 
