@@ -7,8 +7,8 @@ using Object = UnityEngine.Object;
 
 namespace DataContainers.Runtime
 {
-    public class DataContainer<T> : IEnumerable<KeyValuePair<ulong, T>>
-        where T : IId, IRemove
+    public class DataContainer<T> : IEnumerable<KeyValuePair<ulong, T>>, IRemove
+        where T : IId
     {
         public delegate void DataHandler(DataInfo<T> info);
 
